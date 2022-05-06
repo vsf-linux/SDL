@@ -122,6 +122,9 @@ static VideoBootStrap *bootstrap[] = {
     &OS2DIVE_bootstrap,
     &OS2VMAN_bootstrap,
 #endif
+#if SDL_VIDEO_DRIVER_VSF
+    &VSF_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_DUMMY
     &DUMMY_bootstrap,
 #endif

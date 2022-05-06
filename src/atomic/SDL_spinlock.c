@@ -132,6 +132,17 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
     /* Used for Solaris with non-gcc compilers. */
     return (SDL_bool) ((int) atomic_cas_32((volatile uint32_t*)lock, 0, 1) == 0);
 
+#elif defined(__VSF__)
+    vsf_protect_t orig = vsf_protect_int();
+    if (*lock == 0) {
+        *lock = 1;
+        vsf_unprotect_int(orig);
+        return SDL_TRUE;
+    } else {
+        vsf_unprotect_int(orig);
+        return SDL_FALSE;
+    }
+
 #else
 #error Please implement for your platform.
     return SDL_FALSE;
@@ -194,6 +205,11 @@ SDL_AtomicUnlock(SDL_SpinLock *lock)
     /* Used for Solaris when not using gcc. */
     *lock = 0;
     membar_producer();
+
+#elif defined(__VSF__)
+    vsf_protect_t orig = vsf_protect_int();
+    *lock = 0;
+    vsf_unprotect_int(orig);
 
 #else
     *lock = 0;
