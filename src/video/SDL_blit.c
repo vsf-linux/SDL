@@ -280,7 +280,7 @@ SDL_CalculateBlit(SDL_Surface * surface)
             blit = SDL_Blit_Slow;
         }
     }
-    map->data = blit;
+    map->data = (void *)blit;
 
     /* Make sure we have a blit function */
     if (blit == NULL) {

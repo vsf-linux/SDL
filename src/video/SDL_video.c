@@ -4606,7 +4606,7 @@ void *SDL_Vulkan_GetVkGetInstanceProcAddr(void)
         SDL_SetError("No Vulkan loader has been loaded");
         return NULL;
     }
-    return _this->vulkan_config.vkGetInstanceProcAddr;
+    return (void *)_this->vulkan_config.vkGetInstanceProcAddr;
 }
 
 void SDL_Vulkan_UnloadLibrary(void)
