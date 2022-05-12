@@ -72,6 +72,17 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
         return SDL_FALSE;
     }
 
+#elif defined(__VSF__)
+    vsf_protect_t orig = vsf_protect_int();
+    if (*lock == 0) {
+        *lock = 1;
+        vsf_unprotect_int(orig);
+        return SDL_TRUE;
+    } else {
+        vsf_unprotect_int(orig);
+        return SDL_FALSE;
+    }
+
 #elif HAVE_GCC_ATOMICS || HAVE_GCC_SYNC_LOCK_TEST_AND_SET
     return (__sync_lock_test_and_set(lock, 1) == 0);
 
@@ -131,17 +142,6 @@ SDL_AtomicTryLock(SDL_SpinLock *lock)
 #elif defined(__SOLARIS__) && !defined(_LP64)
     /* Used for Solaris with non-gcc compilers. */
     return (SDL_bool) ((int) atomic_cas_32((volatile uint32_t*)lock, 0, 1) == 0);
-
-#elif defined(__VSF__)
-    vsf_protect_t orig = vsf_protect_int();
-    if (*lock == 0) {
-        *lock = 1;
-        vsf_unprotect_int(orig);
-        return SDL_TRUE;
-    } else {
-        vsf_unprotect_int(orig);
-        return SDL_FALSE;
-    }
 
 #else
 #error Please implement for your platform.
